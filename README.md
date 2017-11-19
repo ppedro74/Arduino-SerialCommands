@@ -7,12 +7,12 @@ https://github.com/scogswell/ArduinoSerialCommand
 This library is for handling text commands over a serial port.
 
 Goals:
-Small footprint
-No dynamic memory allocation
-Stream class's Serial Ports
-Multiple Serial Ports callback methods
-Custom Command termination default is `CR & LF`
-Custom Arguments Delimeter default is `SPACE`
+* Small footprint
+* No dynamic memory allocation
+* Stream class's Serial Ports
+* Multiple Serial Ports callback methods
+* Custom Command termination default is `CR & LF`
+* Custom Arguments Delimeter default is `SPACE`
 
 ## SerialCommand object
 
