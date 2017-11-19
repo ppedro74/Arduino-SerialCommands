@@ -1,0 +1,12 @@
+SERIAL_COMMANDS_ERRORS	KEYWORD1
+SerialCommand	KEYWORD1
+SerialCommands	KEYWORD1
+
+AddCommand	KEYWORD2
+ReadSerial	KEYWORD2
+GetSerial	KEYWORD2
+AttachSerial	KEYWORD2
+DetachSerial	KEYWORD2
+SetDefaultHandler	KEYWORD2
+ClearBuffer	KEYWORD2
+Next	KEYWORD2
