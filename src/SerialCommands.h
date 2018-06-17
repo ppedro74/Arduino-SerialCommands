@@ -24,22 +24,24 @@ typedef class SerialCommand SerialCommand;
 class SerialCommand
 {
 public:
-	SerialCommand(const char* cmd, void(*func)(SerialCommands*))
+	SerialCommand(const char* cmd, void(*func)(SerialCommands*), bool one_k=false)
 		: command(cmd),
 		function(func),
-		next(NULL)
+		next(NULL),
+		one_key(one_k)
 	{
 	}
 
 	const char* command;
 	void(*function)(SerialCommands*);
 	SerialCommand* next;
+	bool one_key;
 };
 
 class SerialCommands
 {
 public:
-	SerialCommands(Stream* serial, char* buffer, int16_t buffer_len, char* term = "\r\n", char* delim = " ") :
+	SerialCommands(Stream* serial, char* buffer, int16_t buffer_len, const char* term = "\r\n", const char* delim = " ") :
 		serial_(serial),
 		buffer_(buffer),
 		buffer_len_(buffer!=NULL && buffer_len > 0 ? buffer_len - 1 : 0), //string termination char '\0'
@@ -51,7 +53,10 @@ public:
 		term_pos_(0),
 		commands_head_(NULL),
 		commands_tail_(NULL),
-		commands_count_(0)
+		onek_cmds_head_(NULL),
+		onek_cmds_tail_(NULL),
+		commands_count_(0),
+		onek_cmds_count_(0)
 	{
 	}
 
@@ -106,15 +111,25 @@ private:
 	Stream* serial_;
 	char* buffer_;
 	int16_t buffer_len_;
-	char* term_;
-	char* delim_;
+	const char* term_;
+	const char* delim_;
 	void(*default_handler_)(SerialCommands*, const char*);
 	int16_t buffer_pos_;
 	char* last_token_;
 	int8_t term_pos_;
 	SerialCommand* commands_head_;
 	SerialCommand* commands_tail_;
+	SerialCommand* onek_cmds_head_;
+	SerialCommand* onek_cmds_tail_;
 	uint8_t commands_count_;
+	uint8_t onek_cmds_count_;
+
+	/**
+	 * \brief Tests for any one_key command and execute it if found
+	 * \return false if this was not a one_key command, true otherwise with
+	 *		   also clearing the buffer
+	 **/
+	bool CheckOneKeyCmd();
 };
 
 #endif
