@@ -13,19 +13,36 @@ void SerialCommands::AddCommand(SerialCommand* command)
 	Serial.print(commands_count_);
 	Serial.print(" cmd=[");
 	Serial.print(command->command);
-	Serial.println("]");
-#endif
-	command->next = NULL;
-	if (commands_head_ == NULL)
+	Serial.print("]");
+	if(command->one_key)
 	{
-		commands_head_ = commands_tail_ = command;
+		Serial.print(" as one-key");
+	}
+	Serial.println();
+#endif
+	// Default linked list is commands_????
+	SerialCommand** cmd_head=&commands_head_;
+	SerialCommand** cmd_tail=&commands_tail_;
+	uint8_t *cmd_count = &commands_count_;
+
+	if(command->one_key)
+	{
+		// For a one_key command, we switch to the onek_cmds_???? list
+		cmd_head = &onek_cmds_head_;
+		cmd_tail = &onek_cmds_tail_;
+		cmd_count = &onek_cmds_count_;
+	}
+	command->next = NULL;
+	if (*cmd_head == NULL)
+	{
+		*cmd_head = *cmd_tail = command;
 	}
 	else
 	{
-		commands_tail_->next = command;
-		commands_tail_ = command;
+		(*cmd_tail)->next = command;
+		*cmd_tail = command;
 	}
-	commands_count_++;
+	(*cmd_count)++;
 }
 
 SERIAL_COMMANDS_ERRORS SerialCommands::ReadSerial()
@@ -73,6 +90,11 @@ SERIAL_COMMANDS_ERRORS SerialCommands::ReadSerial()
 			Serial.println("Buffer full");
 #endif
 			return SERIAL_COMMANDS_ERROR_BUFFER_FULL;
+		}
+
+		if(buffer_pos_==1 && CheckOneKeyCmd())
+		{
+			return SERIAL_COMMANDS_SUCCESS;
 		}
 
 		if (term_[term_pos_] != ch)
@@ -129,6 +151,39 @@ SERIAL_COMMANDS_ERRORS SerialCommands::ReadSerial()
 
 	return SERIAL_COMMANDS_SUCCESS;
 }
+
+bool SerialCommands::CheckOneKeyCmd()
+{
+#ifdef SERIAL_COMMANDS_DEBUG
+	Serial.println("Testing for one_key commands.");
+#endif
+
+	int cx;
+	SerialCommand* cmd;
+	for (cmd = onek_cmds_head_, cx = 0; cmd != NULL; cmd = cmd->next, cx++)
+	{
+#ifdef SERIAL_COMMANDS_DEBUG
+		Serial.print("Testing [");
+		Serial.print(buffer_[0]);
+		Serial.print("] to [");
+		Serial.print(cmd->command[0]);
+		Serial.println("]");
+#endif
+		if (buffer_[0] == cmd->command[0])
+		{
+#ifdef SERIAL_COMMANDS_DEBUG
+			Serial.print("Matched #");
+			Serial.println(cx);
+#endif
+			cmd->function(this);
+			ClearBuffer();
+			return true;
+		}
+	}
+
+	return false;
+}
+
 
 Stream* SerialCommands::GetSerial()
 {

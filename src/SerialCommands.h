@@ -24,16 +24,18 @@ typedef class SerialCommand SerialCommand;
 class SerialCommand
 {
 public:
-	SerialCommand(const char* cmd, void(*func)(SerialCommands*))
+	SerialCommand(const char* cmd, void(*func)(SerialCommands*), bool one_k=false)
 		: command(cmd),
 		function(func),
-		next(NULL)
+		next(NULL),
+		one_key(one_k)
 	{
 	}
 
 	const char* command;
 	void(*function)(SerialCommands*);
 	SerialCommand* next;
+	bool one_key;
 };
 
 class SerialCommands
@@ -51,7 +53,10 @@ public:
 		term_pos_(0),
 		commands_head_(NULL),
 		commands_tail_(NULL),
-		commands_count_(0)
+		onek_cmds_head_(NULL),
+		onek_cmds_tail_(NULL),
+		commands_count_(0),
+		onek_cmds_count_(0)
 	{
 	}
 
@@ -114,7 +119,17 @@ private:
 	int8_t term_pos_;
 	SerialCommand* commands_head_;
 	SerialCommand* commands_tail_;
+	SerialCommand* onek_cmds_head_;
+	SerialCommand* onek_cmds_tail_;
 	uint8_t commands_count_;
+	uint8_t onek_cmds_count_;
+
+	/**
+	 * \brief Tests for any one_key command and execute it if found
+	 * \return false if this was not a one_key command, true otherwise with
+	 *		   also clearing the buffer
+	 **/
+	bool CheckOneKeyCmd();
 };
 
 #endif
