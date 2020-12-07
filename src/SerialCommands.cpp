@@ -89,6 +89,7 @@ SERIAL_COMMANDS_ERRORS SerialCommands::ReadSerial()
 #ifdef SERIAL_COMMANDS_DEBUG			
 			Serial.println("Buffer full");
 #endif
+			ClearBuffer();
 			return SERIAL_COMMANDS_ERROR_BUFFER_FULL;
 		}
 
