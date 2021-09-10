@@ -13,6 +13,7 @@
         "type": "git",
         "url": "https://github.com/ppedro74/Arduino-SerialCommands.git"
     },
+    "version": "2.2.0",
     "frameworks": "arduino",
     "platforms": "*"
 }
